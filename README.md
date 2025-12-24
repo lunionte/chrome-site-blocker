@@ -4,14 +4,14 @@ Uma extensão Chrome moderna (Manifest V3) para bloqueio de sites com gerenciame
 
 ## ✨ Características
 
-- ✅ **Manifest V3** - Padrão moderno e seguro
-- ✅ **Service Worker** - Gerenciamento global de estado
-- ✅ **Dashboard** - Interface para gerenciar bloqueios
-- ✅ **Block Page** - 4 etapas de UX intuitiva
-- ✅ **Sistema de Passes** - Máximo 3 acessos por justificativa
-- ✅ **React + TypeScript** - Tipagem estrita
-- ✅ **Tailwind CSS** - Design moderno
-- ✅ **Vite** - Build otimizado
+-   ✅ **Manifest V3** - Padrão moderno e seguro
+-   ✅ **Service Worker** - Gerenciamento global de estado
+-   ✅ **Dashboard** - Interface para gerenciar bloqueios
+-   ✅ **Block Page** - 4 etapas de UX intuitiva
+-   ✅ **Sistema de Passes** - Máximo 3 acessos por justificativa
+-   ✅ **React + TypeScript** - Tipagem estrita
+-   ✅ **Tailwind CSS** - Design moderno
+-   ✅ **Vite** - Build otimizado
 
 ## 📁 Estrutura do Projeto
 
@@ -58,8 +58,9 @@ X-CHROME-EXTENSION/
 ## 🚀 Instalação Rápida
 
 ### Pré-requisitos
-- Node.js 16+
-- Chrome/Brave/Edge
+
+-   Node.js 16+
+-   Chrome/Brave/Edge
 
 ### Setup
 
@@ -84,22 +85,25 @@ npm run dev
 ## � Como Usar
 
 ### Adicionar Sites Bloqueados
+
 1. Clique no ícone da extensão
 2. Digite o domínio (ex: `youtube.com`)
 3. Clique "Adicionar"
 
 ### Acessar Site Bloqueado
+
 1. Tente acessar o site
 2. Veja a página de bloqueio com 4 etapas:
-   - ⚠️ **Aviso** - Confirme que quer prosseguir
-   - 📝 **Justificativa** - Digite motivo (10-500 caracteres)
-   - ✅ **Confirmação** - Revise os dados
-   - 🎉 **Sucesso** - Redirecionamento automático
+    - ⚠️ **Aviso** - Confirme que quer prosseguir
+    - 📝 **Justificativa** - Digite motivo (10-500 caracteres)
+    - ✅ **Confirmação** - Revise os dados
+    - 🎉 **Sucesso** - Redirecionamento automático
 
 ### Sistema de Passes
-- Cada justificativa = **3 acessos permitidos**
-- Após fechar a guia, passes são consumidos
-- Novo acesso = novo bloqueio
+
+-   Cada justificativa = **3 acessos permitidos**
+-   Após fechar a guia, passes são consumidos
+-   Novo acesso = novo bloqueio
 
 ## 🏗️ Arquitetura
 
@@ -114,26 +118,30 @@ Content Script ← Chrome Messages ← Popup/Block Page
 ### Componentes Principais
 
 **Service Worker** (`background.ts`)
-- Gerencia estado global
-- Persiste em `chrome.storage.local`
-- Processa mensagens (ADD, REMOVE, CHECK_BLOCKED, etc)
-- Gerencia passes e justificativas
+
+-   Gerencia estado global
+-   Persiste em `chrome.storage.local`
+-   Processa mensagens (ADD, REMOVE, CHECK_BLOCKED, etc)
+-   Gerencia passes e justificativas
 
 **Content Script** (`content-script.ts`)
-- Verifica cada página carregada
-- Redireciona se bloqueado
-- Consome passes automaticamente
+
+-   Verifica cada página carregada
+-   Redireciona se bloqueado
+-   Consome passes automaticamente
 
 **Popup Dashboard** (`popup/`)
-- React com Zustand
-- Add/remove domínios
-- Gerencia timer
-- Feedback visual
+
+-   React com Zustand
+-   Add/remove domínios
+-   Gerencia timer
+-   Feedback visual
 
 **Block Page** (`block-page/`)
-- 4 componentes para fluxo
-- Integração com Service Worker
-- Salva justificativas
+
+-   4 componentes para fluxo
+-   Integração com Service Worker
+-   Salva justificativas
 
 ## 📁 Estrutura
 
@@ -153,11 +161,11 @@ src/
 
 ## 🔒 Segurança
 
-- Validação de domínios com regex
-- Min 10 / Max 500 caracteres em justificativas
-- Tratamento de erros em todas operações
-- Sem armazenamento de senhas/dados sensíveis
-- Storage local apenas (não sincroniza)
+-   Validação de domínios com regex
+-   Min 10 / Max 500 caracteres em justificativas
+-   Tratamento de erros em todas operações
+-   Sem armazenamento de senhas/dados sensíveis
+-   Storage local apenas (não sincroniza)
 
 ## 🛠️ Desenvolvimento
 
@@ -172,18 +180,19 @@ npm run preview     # Preview da build
 
 ### Stack
 
-- **React 18.2** - UI
-- **TypeScript 5.2** - Tipagem
-- **Zustand 4.4** - State
-- **Vite 5.0** - Build
-- **Tailwind 3.3** - CSS
-- **Manifest V3** - Chrome API
+-   **React 18.2** - UI
+-   **TypeScript 5.2** - Tipagem
+-   **Zustand 4.4** - State
+-   **Vite 5.0** - Build
+-   **Tailwind 3.3** - CSS
+-   **Manifest V3** - Chrome API
 
 ## ⚠️ Problemas Conhecidos
 
 Veja [ANALISE_TECNICA.md](ANALISE_TECNICA.md) para:
-- 3 problemas críticos identificados
-- 5 de alta prioridade
-- Recomendações de correção
+
+-   3 problemas críticos identificados
+-   5 de alta prioridade
+-   Recomendações de correção
 
 **Status:** Não recomendado para Chrome Web Store até correções
