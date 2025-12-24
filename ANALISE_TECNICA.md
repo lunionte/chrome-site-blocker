@@ -8,10 +8,10 @@
 
 ## 📊 Sumário Executivo
 
-- **Risco Crítico:** 3 vulnerabilidades de segurança e lógica
-- **Risco Alto:** 5 problemas de design e performance
-- **Risco Médio:** 8 ineficiências técnicas
-- **Recomendações:** 16 ações imediatas identificadas
+-   **Risco Crítico:** 3 vulnerabilidades de segurança e lógica
+-   **Risco Alto:** 5 problemas de design e performance
+-   **Risco Médio:** 8 ineficiências técnicas
+-   **Recomendações:** 16 ações imediatas identificadas
 
 ---
 
@@ -34,19 +34,21 @@ if (blockStatus.remainingPasses > 0) {
 ```
 
 **Problema Detalhado:**
-- O content-script verifica se há passes (`remainingPasses > 0`)
-- Logo após, envia mensagem `USE_PASS` de forma **assíncrona sem await**
-- Se múltiplas abas do mesmo site bloqueado forem abertas simultaneamente:
-  1. Aba 1 verifica: `remainingPasses = 3` ✓
-  2. Aba 2 verifica: `remainingPasses = 3` ✓
-  3. Ambas enviam `USE_PASS` quase simultaneamente
-  4. Race condition → ambas consomem 1 pass, mas estado não sincroniza
-  5. Resultado: Passes gastos em duplicata, usuário pode perder acessos
+
+-   O content-script verifica se há passes (`remainingPasses > 0`)
+-   Logo após, envia mensagem `USE_PASS` de forma **assíncrona sem await**
+-   Se múltiplas abas do mesmo site bloqueado forem abertas simultaneamente:
+    1. Aba 1 verifica: `remainingPasses = 3` ✓
+    2. Aba 2 verifica: `remainingPasses = 3` ✓
+    3. Ambas enviam `USE_PASS` quase simultaneamente
+    4. Race condition → ambas consomem 1 pass, mas estado não sincroniza
+    5. Resultado: Passes gastos em duplicata, usuário pode perder acessos
 
 **Impacto:**
-- Usuário perde acesso liberado prematuramente
-- Não intuitivo: justificativa funcionaria para 1 aba, falha para 2+
-- Violação de contrato: "máximo 3 acessos" não é respeitado
+
+-   Usuário perde acesso liberado prematuramente
+-   Não intuitivo: justificativa funcionaria para 1 aba, falha para 2+
+-   Violação de contrato: "máximo 3 acessos" não é respeitado
 
 **Recomendação:**
 Remover o `USE_PASS` automático do content-script. Deixar o pass ser consumido apenas quando houver **sucesso efetivo** no carregamento da página-alvo:
@@ -79,19 +81,22 @@ case "SUBMIT_JUSTIFICATION": {
 ```
 
 **Problema:**
-- `sessionId` é gerado mas **nunca checado em nenhum lugar**
-- Estrutura sugere sistema multi-sessão, mas implementação é single-passthrough
-- Campo de dados inútil aumenta footprint de memória
-- Código morto reduz legibilidade (leitura confusa: por que existe?)
+
+-   `sessionId` é gerado mas **nunca checado em nenhum lugar**
+-   Estrutura sugere sistema multi-sessão, mas implementação é single-passthrough
+-   Campo de dados inútil aumenta footprint de memória
+-   Código morto reduz legibilidade (leitura confusa: por que existe?)
 
 **Impacto:**
-- Confusão para future maintainers
-- Overhead de memória (pequeno mas real)
-- Sugestão de funcionalidade que não existe
+
+-   Confusão para future maintainers
+-   Overhead de memória (pequeno mas real)
+-   Sugestão de funcionalidade que não existe
 
 **Recomendação:**
 
 Opção A (Remover, se realmente não for usar):
+
 ```typescript
 state.justifications.set(normalizedDomain, {
     remainingPasses: 3,
@@ -100,6 +105,7 @@ state.justifications.set(normalizedDomain, {
 ```
 
 Opção B (Implementar corretamente, se for usar):
+
 ```typescript
 // Se houver requisito de multi-tab sessions:
 state.justifications.set(normalizedDomain, {
@@ -135,21 +141,24 @@ chrome.runtime.sendMessage({
 ```
 
 **Problema:**
+
 1. **Sem Timeout:** Se Service Worker falhar (crash, unload), Promise **nunca resolve** → UI fica travada
 2. **Fire-and-Forget:** `USE_PASS` é enviado sem confirmação
 3. **Sem Fallback:** User nunca fica sabendo que a ação falhou
 4. **Memory Leak Potencial:** Promise pendente forever
 
 **Cenário Real:**
-- User clica "Adicionar domínio"
-- Service Worker falha/atualiza
-- UI fica em loading infinito
-- User fecha popup frustrado, acredita que nada aconteceu
+
+-   User clica "Adicionar domínio"
+-   Service Worker falha/atualiza
+-   UI fica em loading infinito
+-   User fecha popup frustrado, acredita que nada aconteceu
 
 **Impacto:**
-- UX ruim (travamentos indefinidos)
-- Impossível debugar falhas de comunicação
-- Reduz confiabilidade (silent failures)
+
+-   UX ruim (travamentos indefinidos)
+-   Impossível debugar falhas de comunicação
+-   Reduz confiabilidade (silent failures)
 
 **Recomendação:**
 
@@ -157,10 +166,7 @@ Criar helper com timeout e error handling:
 
 ```typescript
 // utils/chromeSend.ts
-export function sendChromeMessage<T>(
-    message: ChromeMessage,
-    timeoutMs: number = 5000
-): Promise<T> {
+export function sendChromeMessage<T>(message: ChromeMessage, timeoutMs: number = 5000): Promise<T> {
     return Promise.race([
         new Promise<T>((resolve, reject) => {
             chrome.runtime.sendMessage(message, (response) => {
@@ -173,9 +179,7 @@ export function sendChromeMessage<T>(
                 }
             });
         }),
-        new Promise<T>((_, reject) =>
-            setTimeout(() => reject(new Error("Timeout na comunicação")), timeoutMs)
-        ),
+        new Promise<T>((_, reject) => setTimeout(() => reject(new Error("Timeout na comunicação")), timeoutMs)),
     ]);
 }
 
@@ -218,19 +222,22 @@ if (stored?.blockedDomains) {
 ```
 
 **Problema:**
+
 1. Justificações são salvas em storage com reason vazio
 2. Ao reiniciar Service Worker, `initializeState()` **não recarrega justifications**
 3. Resultado: Passes se perdem quando SW reinicia (frequente em Chrome)
 
 **Cenário:**
-- User justifica acesso: Passes = 3
-- Chrome reinicia Service Worker (por memory pressure, update, etc)
-- User abre site: Passes foram perdidos! Bloqueado novamente
+
+-   User justifica acesso: Passes = 3
+-   Chrome reinicia Service Worker (por memory pressure, update, etc)
+-   User abre site: Passes foram perdidos! Bloqueado novamente
 
 **Impacto:**
-- Justificativas desaparecem espontaneamente
-- Experiência inconsistente (imprevisível)
-- User reclama: "Desbloqueei mas foi refeito bloqueio"
+
+-   Justificativas desaparecem espontaneamente
+-   Experiência inconsistente (imprevisível)
+-   User reclama: "Desbloqueei mas foi refeito bloqueio"
 
 **Recomendação:**
 
@@ -284,14 +291,16 @@ function redirectToBlockPage(): void {
 ```
 
 **Problema:**
+
 1. URL é passada via query param (público, visível)
 2. Se block-page usar param diretamente em `window.location.href`, permite XSS:
-   - `?target=javascript:alert('xss')`
+    - `?target=javascript:alert('xss')`
 3. Mesmo encodificado, precisa de validação
 
 **Impacto:**
-- Potencial XSS (local, baixo impacto, mas ainda vulnerability)
-- User pode ser redirecionado para URL maliciosa
+
+-   Potencial XSS (local, baixo impacto, mas ainda vulnerability)
+-   User pode ser redirecionado para URL maliciosa
 
 **Recomendação:**
 
@@ -300,9 +309,9 @@ function redirectToBlockPage(): void {
 function getTargetUrl(): string {
     const params = new URLSearchParams(window.location.search);
     const target = params.get("target");
-    
+
     if (!target) return "about:blank";
-    
+
     try {
         const url = new URL(decodeURIComponent(target));
         // ✅ Validar: apenas http/https
@@ -341,20 +350,23 @@ state.blockedDomains.set(domain, newDomain);
 ```
 
 **Problema:**
-- Popup normaliza para lowercase antes de enviar
-- Mas background.ts pode receber domain já normalizado ou não
-- Inconsistência: `YOUTUBE.COM` vs `youtube.com` vs `YouTube.com`
-- Map lookup case-sensitive
+
+-   Popup normaliza para lowercase antes de enviar
+-   Mas background.ts pode receber domain já normalizado ou não
+-   Inconsistência: `YOUTUBE.COM` vs `youtube.com` vs `YouTube.com`
+-   Map lookup case-sensitive
 
 **Cenário:**
-- User entra `YouTube.com`
-- Popup normaliza → `youtube.com`
-- Ao bloquear, pode comparar `YOUTUBE.COM` vs `youtube.com` → não encontra
-- Resultado: Site não é bloqueado
+
+-   User entra `YouTube.com`
+-   Popup normaliza → `youtube.com`
+-   Ao bloquear, pode comparar `YOUTUBE.COM` vs `youtube.com` → não encontra
+-   Resultado: Site não é bloqueado
 
 **Impacto:**
-- Bypass de bloqueio com uppercase variations
-- Difícil de debugar (intermitente)
+
+-   Bypass de bloqueio com uppercase variations
+-   Difícil de debugar (intermitente)
 
 **Recomendação:**
 
@@ -365,7 +377,7 @@ Padronizar **sempre** em background:
 case "UPDATE_DOMAINS": {
     const { domain, action } = message.payload as { domain: string; action: "add" | "remove" };
     const normalizedDomain = domain.toLowerCase().trim();
-    
+
     if (action === "add") {
         const newDomain: BlockedDomain = {
             id: `${normalizedDomain}-${Date.now()}`,
@@ -395,14 +407,16 @@ state.justifications.set(normalizedDomain, {
 ```
 
 **Problema:**
-- User justifica acesso, recebe 3 passes
-- Passes nunca expiram (indefinidamente válidos)
-- Design original (24h) foi descartado, mas sem substituição
-- Pode resultar em: "Desbloqueei um domínio 6 meses atrás, ainda funciona"
+
+-   User justifica acesso, recebe 3 passes
+-   Passes nunca expiram (indefinidamente válidos)
+-   Design original (24h) foi descartado, mas sem substituição
+-   Pode resultar em: "Desbloqueei um domínio 6 meses atrás, ainda funciona"
 
 **Impacto:**
-- Violação do propósito da extensão (controle de tempo)
-- Passes não consumidos acumulam
+
+-   Violação do propósito da extensão (controle de tempo)
+-   Passes não consumidos acumulam
 
 **Recomendação:**
 
@@ -410,7 +424,7 @@ state.justifications.set(normalizedDomain, {
 state.justifications.set(normalizedDomain, {
     remainingPasses: 3,
     sessionId,
-    expiresAt: Date.now() + (24 * 60 * 60 * 1000), // 24h
+    expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24h
 });
 
 // No isDomainBlocked():
@@ -443,20 +457,23 @@ await chrome.storage.local.set({ blockingState: storageData });
 ```
 
 **Problema:**
+
 1. Justificações antigas nunca são removidas (mesmo expiradas)
 2. Se user adicionar 1000 domínios, storage cresce indefinidamente
 3. Chrome storage.local limite: ~10MB, pode ficar perto desse limite
 4. Performance degrada com dados crescentes
 
 **Cenário:**
-- User active por 6 meses: 100 justificações salvas
-- Storage cresceu 10KB (pequeno) mas continua
-- Leitura de storage fica lenta progressivamente
+
+-   User active por 6 meses: 100 justificações salvas
+-   Storage cresceu 10KB (pequeno) mas continua
+-   Leitura de storage fica lenta progressivamente
 
 **Impacto:**
-- Possível exceder quota de storage (erro silencioso)
-- Degração de performance
-- Sem monitoramento
+
+-   Possível exceder quota de storage (erro silencioso)
+-   Degração de performance
+-   Sem monitoramento
 
 **Recomendação:**
 
@@ -490,7 +507,7 @@ async function persistState(): Promise<void> {
         };
 
         await chrome.storage.local.set({ blockingState: storageData });
-        
+
         // ✅ Log tamanho aproximado
         const sizeKB = JSON.stringify(storageData).length / 1024;
         if (sizeKB > 5000) {
@@ -510,21 +527,23 @@ async function persistState(): Promise<void> {
 
 ```typescript
 setStep: (step) => set({ step }),
-// ✓ Permite qualquer transição de step, sem validação
+    // ✓ Permite qualquer transição de step, sem validação
 
-// Exemplo de bug:
-useBlockPageStore.setState({ step: "submitted" }); // Sem preencher reason
+    // Exemplo de bug:
+    useBlockPageStore.setState({ step: "submitted" }); // Sem preencher reason
 // UI renderiza "sucesso" mesmo sem justificativa
 ```
 
 **Problema:**
+
 1. User pode manipular via DevTools: mudar step para "submitted" sem enviar
 2. Transições inválidas: "warning" → "submitted" diretamente
 3. Sem guarda de negócio
 
 **Impacto:**
-- User technically sofisticado pode burlar fluxo
-- Lógica de negócio fraca
+
+-   User technically sofisticado pode burlar fluxo
+-   Lógica de negócio fraca
 
 **Recomendação:**
 
@@ -532,36 +551,36 @@ useBlockPageStore.setState({ step: "submitted" }); // Sem preencher reason
 interface BlockPageState {
     step: "warning" | "form" | "confirmation" | "submitted";
     // ... resto
-    
+
     // ✅ Adicionar método com validação
     setStepSafe: (newStep: BlockPageState["step"]) => void;
 }
 
 export const useBlockPageStore = create<BlockPageState>((set, get) => ({
     // ... outros campos
-    
+
     setStepSafe: (newStep) => {
         const { step, reason } = get();
-        
+
         // Validação de transições
         const validTransitions: Record<string, string[]> = {
-            "warning": ["form"],
-            "form": ["confirmation", "warning"],
-            "confirmation": ["submitted", "form"],
-            "submitted": [], // Terminal state
+            warning: ["form"],
+            form: ["confirmation", "warning"],
+            confirmation: ["submitted", "form"],
+            submitted: [], // Terminal state
         };
-        
+
         if (!validTransitions[step]?.includes(newStep)) {
             console.warn(`Transição inválida: ${step} → ${newStep}`);
             return;
         }
-        
+
         // Validação de dados necessários
         if (newStep === "confirmation" && (!reason || reason.length < 10)) {
             set({ error: "Justificativa inválida" });
             return;
         }
-        
+
         set({ step: newStep });
     },
 }));
@@ -583,14 +602,16 @@ chrome.runtime.onMessage.addListener((message: any) => {
 ```
 
 **Problema:**
+
 1. Handler não retorna nada
 2. Listener não faz update de UI
 3. User fica sem saber se timer expirou
 4. Chrome pode descartar o listener em alguns casos
 
 **Impacto:**
-- Feature incompleta (listener inútil)
-- User não recebe feedback
+
+-   Feature incompleta (listener inútil)
+-   User não recebe feedback
 
 **Recomendação:**
 
@@ -598,7 +619,7 @@ chrome.runtime.onMessage.addListener((message: any) => {
 chrome.runtime.onMessage.addListener((message: any, _sender, sendResponse) => {
     if (message.type === "TIMER_EXPIRED") {
         console.log("[Content Script] Timer expirou, atualizando acesso");
-        
+
         // ✅ Se há passes, recheca se ainda pode acessar
         checkIfBlocked().then((status) => {
             if (status.isBlocked) {
@@ -606,7 +627,7 @@ chrome.runtime.onMessage.addListener((message: any, _sender, sendResponse) => {
                 window.location.reload();
             }
         });
-        
+
         sendResponse({ ok: true });
     }
     return true; // Keep channel open
@@ -657,6 +678,7 @@ console.log(`[Service Worker] Domínios bloqueados: ${Array.from(state.blockedDo
 ### 14. **Missing Icon Assets in Manifest**
 
 **manifest.json:**
+
 ```json
 "action": {
     "default_popup": "popup.html",
@@ -677,6 +699,7 @@ console.log(`[Service Worker] Domínios bloqueados: ${Array.from(state.blockedDo
 ### 16. **Memory Leak: setInterval Without Cleanup on Content Script**
 
 **content-script.ts:**
+
 ```typescript
 // performInitialCheck() é chamada, mas performInitialCheck não tem cleanup
 // Se página recarrega muito, múltiplos listeners podem estar ativos
@@ -686,48 +709,52 @@ console.log(`[Service Worker] Domínios bloqueados: ${Array.from(state.blockedDo
 
 ## 🎯 MATRIZ DE PRIORIZAÇÃO
 
-| # | Problema | Severidade | Esforço | P = S×E | Status |
-|---|----------|-----------|--------|---------|--------|
-| 1 | Race Condition Passes | CRÍTICA | Alto | 9 | 🔴 Fazer agora |
-| 2 | SessionID Inútil | CRÍTICA | Baixo | 6 | 🔴 Fazer agora |
-| 3 | No Error Handling | CRÍTICA | Médio | 8 | 🔴 Fazer agora |
-| 4 | Persist Justifications | Alta | Médio | 6 | 🟠 Próximas 2h |
-| 5 | URL Decode XSS | Alta | Baixo | 5 | 🟠 Próximas 2h |
-| 6 | Case Sensitivity | Alta | Baixo | 4 | 🟠 Próximas 2h |
-| 7 | Pass Expiration | Alta | Médio | 6 | 🟠 Próximas 2h |
-| 8 | Storage Growth | Alta | Médio | 6 | 🟠 Próximas 2h |
-| 9 | Step Validation | Média | Médio | 4 | 🟡 Backlog |
-| 10 | Timer Handler | Média | Baixo | 3 | 🟡 Backlog |
-| 11-16 | Secundárias | Baixa | Vários | <3 | 🟡 Backlog |
+| #     | Problema               | Severidade | Esforço | P = S×E | Status         |
+| ----- | ---------------------- | ---------- | ------- | ------- | -------------- |
+| 1     | Race Condition Passes  | CRÍTICA    | Alto    | 9       | 🔴 Fazer agora |
+| 2     | SessionID Inútil       | CRÍTICA    | Baixo   | 6       | 🔴 Fazer agora |
+| 3     | No Error Handling      | CRÍTICA    | Médio   | 8       | 🔴 Fazer agora |
+| 4     | Persist Justifications | Alta       | Médio   | 6       | 🟠 Próximas 2h |
+| 5     | URL Decode XSS         | Alta       | Baixo   | 5       | 🟠 Próximas 2h |
+| 6     | Case Sensitivity       | Alta       | Baixo   | 4       | 🟠 Próximas 2h |
+| 7     | Pass Expiration        | Alta       | Médio   | 6       | 🟠 Próximas 2h |
+| 8     | Storage Growth         | Alta       | Médio   | 6       | 🟠 Próximas 2h |
+| 9     | Step Validation        | Média      | Médio   | 4       | 🟡 Backlog     |
+| 10    | Timer Handler          | Média      | Baixo   | 3       | 🟡 Backlog     |
+| 11-16 | Secundárias            | Baixa      | Vários  | <3      | 🟡 Backlog     |
 
 ---
 
 ## ✅ CHECKLIST IMPLEMENTAÇÃO RECOMENDADA
 
 ### Fase 1: Crítica (4h)
-- [ ] Implementar error handling com timeout (Problema 3)
-- [ ] Remover USE_PASS automático do content-script (Problema 1)
-- [ ] Remover ou implementar sessionId (Problema 2)
-- [ ] Adicionar validação de URL (Problema 5)
+
+-   [ ] Implementar error handling com timeout (Problema 3)
+-   [ ] Remover USE_PASS automático do content-script (Problema 1)
+-   [ ] Remover ou implementar sessionId (Problema 2)
+-   [ ] Adicionar validação de URL (Problema 5)
 
 ### Fase 2: Alta (6h)
-- [ ] Recarregar justifications em initializeState (Problema 4)
-- [ ] Normalizar domain em background (Problema 6)
-- [ ] Adicionar expiração de passes (Problema 7)
-- [ ] Implementar cleanup de storage (Problema 8)
+
+-   [ ] Recarregar justifications em initializeState (Problema 4)
+-   [ ] Normalizar domain em background (Problema 6)
+-   [ ] Adicionar expiração de passes (Problema 7)
+-   [ ] Implementar cleanup de storage (Problema 8)
 
 ### Fase 3: Melhorias (8h)
-- [ ] Adicionar validação de transições (Problema 9)
-- [ ] Implementar timer handler completo (Problema 10)
-- [ ] Remover console.logs ou adicionar debug flag
-- [ ] Centralizar helpers de domínio
-- [ ] Adicionar ícones
+
+-   [ ] Adicionar validação de transições (Problema 9)
+-   [ ] Implementar timer handler completo (Problema 10)
+-   [ ] Remover console.logs ou adicionar debug flag
+-   [ ] Centralizar helpers de domínio
+-   [ ] Adicionar ícones
 
 ### Fase 4: Robustez (indefinido)
-- [ ] Unit tests (Jest)
-- [ ] Integração tests (Playwright)
-- [ ] i18n (português, inglês, espanhol)
-- [ ] Performance profiling
+
+-   [ ] Unit tests (Jest)
+-   [ ] Integração tests (Playwright)
+-   [ ] i18n (português, inglês, espanhol)
+-   [ ] Performance profiling
 
 ---
 
@@ -750,4 +777,3 @@ console.log(`[Service Worker] Domínios bloqueados: ${Array.from(state.blockedDo
 
 **Esforço Total Estimado:** 20-25 horas para todas as correções
 **Status de Produção:** ⚠️ **Não recomendado para Web Store ainda**
-
