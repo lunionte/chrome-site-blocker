@@ -1,6 +1,6 @@
 /**
  * Componente SubmittedStep
- * Quarta etapa - confirmação de envio
+ * Quarta etapa - confirmação de envio com design celebrativo
  */
 
 import React, { useEffect, useState } from "react";
@@ -21,43 +21,76 @@ export const SubmittedStep: React.FC<SubmittedStepProps> = ({ domain }) => {
     }, []);
 
     return (
-        <div className="space-y-6 text-center">
-            {/* Ícone de Sucesso */}
-            <div>
-                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg
-                        className="w-10 h-10 text-green-600 animate-bounce"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
+        <div className="flex flex-col items-center space-y-8">
+            {/* Ícone de Sucesso - Animado */}
+            <div className="animate-scaleIn">
+                <div className="relative w-24 h-24">
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-100 via-cyan-100 to-green-100 rounded-full animate-pulseGlow" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <svg
+                            className="w-12 h-12 text-green-600 animate-slideHorizontal"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
                 </div>
             </div>
 
-            {/* Mensagem */}
-            <div className="space-y-3">
-                <h2 className="text-2xl font-bold text-gray-900">Justificativa Enviada!</h2>
-                <p className="text-sm text-gray-600">Sua justificativa foi registrada com sucesso</p>
-                <p className="text-xs text-gray-500">
-                    <strong>Domínio:</strong> {domain}
+            {/* Mensagem Principal */}
+            <div className="text-center space-y-3 animate-slideInUp">
+                <h2 className="text-3xl font-bold text-gray-900">Justificativa Enviada!</h2>
+                <p className="text-base text-gray-600 leading-relaxed">
+                    Sua justificativa foi <span className="font-semibold text-green-600">registrada com sucesso</span>
                 </p>
+                <div className="pt-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
+                    <p className="text-xs text-gray-600 font-medium">
+                        <span className="opacity-75">Acessando:</span>{" "}
+                        <code className="bg-blue-100 px-2 py-1 rounded text-xs font-mono text-blue-900">{domain}</code>
+                    </p>
+                </div>
             </div>
 
-            {/* Info */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2">
-                <p className="text-sm text-green-900 font-medium">✓ Redirecionando...</p>
-                <p className="text-xs text-green-700">
-                    Você será redirecionado em <strong>{countdown}</strong> segundo{countdown !== 1 ? "s" : ""}
-                </p>
+            {/* Info de Redirecionamento */}
+            <div className="info-box info-box--success w-full">
+                <svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                    />
+                </svg>
+                <div>
+                    <p className="font-semibold text-green-900 text-sm mb-1">✓ Redirecionando...</p>
+                    <p className="text-xs text-green-700">
+                        Você será redirecionado em <span className="font-bold text-lg text-green-900">{countdown}</span>{" "}
+                        segundo{countdown !== 1 ? "s" : ""}
+                    </p>
+                </div>
             </div>
 
-            {/* Status */}
-            <div className="text-center">
-                <p className="text-xs text-gray-500 italic">
-                    Se não for redirecionado automaticamente, feche esta abra
-                </p>
+            {/* Status Final */}
+            <div className="text-center animate-fadeIn">
+                <p className="text-xs text-gray-500">Se não for redirecionado automaticamente, feche esta aba</p>
+            </div>
+
+            {/* Confete Visual (CSS) */}
+            <div className="fixed inset-0 pointer-events-none">
+                {[...Array(12)].map((_, i) => (
+                    <div
+                        key={i}
+                        className="absolute w-1 h-1 bg-gradient-to-b from-blue-400 to-cyan-400 rounded-full animate-slideInUp"
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            top: "50%",
+                            animation: `slideInUp ${2 + Math.random() * 1}s ease-out forwards`,
+                            delay: `${i * 0.1}s`,
+                            opacity: 0.6,
+                        }}
+                    />
+                ))}
             </div>
         </div>
     );
