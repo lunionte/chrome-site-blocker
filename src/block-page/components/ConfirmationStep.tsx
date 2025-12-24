@@ -22,11 +22,11 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
     loading = false,
 }) => {
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 text-center">
             {/* Título */}
             <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-gray-900">Confirme Seus Dados</h2>
-                <p className="text-sm text-gray-600">Revise as informações antes de enviar</p>
+                <h2 className="text-2xl font-bold text-gray-900 text-center">Confirme Seus Dados</h2>
+                <p className="text-sm text-gray-600 text-center">Revise as informações antes de enviar</p>
             </div>
 
             {/* Resumo */}
@@ -45,9 +45,9 @@ export const ConfirmationStep: React.FC<ConfirmationStepProps> = ({
                 </div>
 
                 {/* Termos */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
-                    <p className="text-sm text-blue-900 font-medium">✓ Ao prosseguir, você concorda:</p>
-                    <ul className="text-xs text-blue-800 space-y-1 ml-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2 text-center">
+                    <p className="text-sm text-blue-900 font-medium text-center">✓ Ao prosseguir, você concorda:</p>
+                    <ul className="text-xs text-blue-800 space-y-1 inline-block">
                         <li>• Que esta justificativa é verdadeira e completa</li>
                         <li>• Que você está ciente que abusos podem resultar em bloqueios adicionais</li>
                         <li>• Que suas informações serão registradas para análise</li>
