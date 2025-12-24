@@ -10,11 +10,13 @@ interface BlockPageState {
     domain: string;
     targetUrl: string;
     reason: string;
+    puzzleCompleted: boolean;
     loading: boolean;
     error: string | null;
 
     setStep: (step: BlockPageState["step"]) => void;
     setReason: (reason: string) => void;
+    setPuzzleCompleted: (completed: boolean) => void;
     submitJustification: () => Promise<void>;
     goBack: () => void;
     clearError: () => void;
@@ -25,12 +27,15 @@ export const useBlockPageStore = create<BlockPageState>((set, get) => ({
     domain: "",
     targetUrl: "",
     reason: "",
+    puzzleCompleted: false,
     loading: false,
     error: null,
 
     setStep: (step) => set({ step }),
 
     setReason: (reason) => set({ reason }),
+
+    setPuzzleCompleted: (completed) => set({ puzzleCompleted: completed }),
 
     submitJustification: async () => {
         const { domain, reason, targetUrl } = get();

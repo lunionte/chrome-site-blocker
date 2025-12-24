@@ -74,11 +74,18 @@ async function persistState(): Promise<void> {
 /**
  * Verifica se um domínio está bloqueado
  * Se há passes disponíveis nesta sessão, permite o acesso
+ * Se o timer global expirou, nenhum domínio é bloqueado
  */
 function isDomainBlocked(domain: string): boolean {
     const normalizedDomain = domain.toLowerCase();
     console.log(`[Service Worker] Verificando bloqueio para: ${normalizedDomain}`);
     console.log(`[Service Worker] Domínios bloqueados: ${Array.from(state.blockedDomains.keys()).join(", ")}`);
+
+    // Se o timer global está desativado, nenhum domínio é bloqueado
+    if (!state.blockingTimer.enabled) {
+        console.log(`[Service Worker] Timer global desativado - ${normalizedDomain} não está bloqueado`);
+        return false;
+    }
 
     if (!state.blockedDomains.has(normalizedDomain)) {
         console.log(`[Service Worker] ${normalizedDomain} não está bloqueado`);

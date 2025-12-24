@@ -29,6 +29,11 @@ export interface BlockingJustification {
     justified: boolean;
 }
 
+export interface PuzzleState {
+    completed: boolean;
+    completionPercentage: number;
+}
+
 export interface StorageData {
     blockedDomains: BlockedDomain[];
     blockingTimer: BlockingTimer;
