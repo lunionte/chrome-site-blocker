@@ -19,6 +19,27 @@ body {
     height: 100%;
 }
 
+/* Estilos de Centralização Global */
+.block-page-container {
+    @apply flex items-center justify-center;
+}
+
+.block-page-content {
+    @apply text-center;
+}
+
+.block-page-content h1,
+.block-page-content h2,
+.block-page-content h3 {
+    @apply text-center;
+}
+
+.block-page-content p,
+.block-page-content label,
+.block-page-content span {
+    @apply text-center block;
+}
+
 button {
     @apply transition-all duration-200 ease-in-out;
 }
