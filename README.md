@@ -1,17 +1,17 @@
-# X-Chrome Site Blocker
+# X-Chrome Site Blocker 🚫
 
-Uma extensão moderna do Chrome (Manifest V3) para bloqueio de sites com gerenciamento avançado de domínios, timer global de bloqueio e fluxo de justificativa em múltiplas etapas.
+Uma extensão Chrome moderna (Manifest V3) para bloqueio de sites com gerenciamento de domínios, timer global e fluxo de justificativa inteligente.
 
-## 🎯 Características
+## ✨ Características
 
--   ✅ **Manifest V3** - Arquitetura moderna e segura
--   ✅ **Service Worker** - Gerenciamento global de estado e persistência
--   ✅ **Dashboard/Popup** - Interface limpa para gerenciar domínios bloqueados
--   ✅ **Timer Global** - Configure um cronômetro para liberar bloqueios temporariamente
--   ✅ **Block Page** - Página de interceptação com fluxo de justificativa em 3 etapas
--   ✅ **React + TypeScript** - Tipagem estrita e componentes reutilizáveis
--   ✅ **Tailwind CSS** - Design minimalista e responsivo
--   ✅ **Vite** - Build otimizado para extensões Chrome
+- ✅ **Manifest V3** - Padrão moderno e seguro
+- ✅ **Service Worker** - Gerenciamento global de estado
+- ✅ **Dashboard** - Interface para gerenciar bloqueios
+- ✅ **Block Page** - 4 etapas de UX intuitiva
+- ✅ **Sistema de Passes** - Máximo 3 acessos por justificativa
+- ✅ **React + TypeScript** - Tipagem estrita
+- ✅ **Tailwind CSS** - Design moderno
+- ✅ **Vite** - Build otimizado
 
 ## 📁 Estrutura do Projeto
 
@@ -55,234 +55,135 @@ X-CHROME-EXTENSION/
 └── dist/                            # Build output (gerado)
 ```
 
-## 🚀 Como Começar
+## 🚀 Instalação Rápida
 
 ### Pré-requisitos
+- Node.js 16+
+- Chrome/Brave/Edge
 
--   Node.js 16+ e npm/yarn instalados
--   Chrome/Brave/Edge (Manifest V3 compatível)
-
-### Instalação
+### Setup
 
 ```bash
-# Clone ou entre no diretório do projeto
-cd X-CHROME-EXTENSION
-
-# Instale as dependências
+# Instalar dependências
 npm install
-
-# Compile o projeto para produção
-npm run build
-
-# Ou para desenvolvimento com hot reload
-npm run dev
-```
-
-### Carregar a Extensão no Chrome
-
-1. Abra `chrome://extensions/`
-2. Ative o **Modo do desenvolvedor** (canto superior direito)
-3. Clique em **Carregar extensão sem empacotamento**
-4. Selecione a pasta `dist/` do projeto
-
-## 📋 Uso
-
-### 1. Dashboard/Popup
-
-Clique no ícone da extensão na barra de ferramentas:
-
--   **Adicionar Domínio**: Digite o domínio e clique "Adicionar"
--   **Gerenciar Domínios**: Visualize e remova domínios bloqueados
--   **Configurar Timer**: Defina uma duração e inicie o timer de bloqueio
-
-### 2. Página de Bloqueio
-
-Ao tentar acessar um domínio bloqueado, o usuário verá:
-
-1. **Aviso Inicial** - Informação de que o domínio está bloqueado
-2. **Formulário de Justificativa** - Campo para explicar o acesso (mín. 10 caracteres)
-3. **Confirmação** - Revise os dados antes de enviar
-4. **Sucesso** - Redirecionamento automático após 2 segundos
-
-## 🏗️ Arquitetura
-
-### Service Worker (Background Script)
-
-Responsável por:
-
--   Manter estado global de domínios bloqueados
--   Gerenciar o timer de bloqueio
--   Processar mensagens do popup e content script
--   Persistir dados em `chrome.storage.local`
-
-**Mensagens principais:**
-
--   `UPDATE_DOMAINS` - Adiciona/remove domínios
--   `UPDATE_TIMER` - Ativa/desativa timer
--   `IS_BLOCKED` - Verifica se URL está bloqueada
--   `GET_BLOCKING_STATE` - Obtém estado completo
-
-### Content Script
-
--   Verifica se cada página carregada está bloqueada
--   Redireciona para a página de bloqueio se necessário
--   Evita redirecionamentos recursivos
-
-### Popup (React)
-
-Componentes:
-
--   `DomainForm` - Entrada de novos domínios
--   `DomainList` - Exibição de domínios com botões de remoção
--   `TimerControl` - Gerenciamento do timer
--   `ErrorAlert` - Mensagens de erro
-
-### Block Page (React)
-
-Fluxo em 4 etapas:
-
--   `WarningStep` - Aviso visual do bloqueio
--   `FormStep` - Formulário com validação
--   `ConfirmationStep` - Revisão de dados
--   `SubmittedStep` - Confirmação e redirecionamento
-
-## 🔐 Segurança e Persistência
-
-### Storage
-
-Todos os dados são salvos em `chrome.storage.local`:
-
-```typescript
-{
-  blockedDomains: BlockedDomain[],
-  blockingTimer: BlockingTimer,
-  justifications: BlockingJustification[]
-}
-```
-
-### Validações
-
--   ✅ Validação de domínios com regex
--   ✅ Mínimo 10 caracteres em justificativas
--   ✅ Máximo 500 caracteres
--   ✅ Tratamento de erros em todas as operações
-
-## 📊 Tipos TypeScript
-
-```typescript
-// Domínio bloqueado
-interface BlockedDomain {
-    id: string;
-    domain: string;
-    addedAt: number;
-    reason?: string;
-}
-
-// Configuração de timer
-interface BlockingTimer {
-    enabled: boolean;
-    startTime: number | null;
-    duration: number; // em minutos
-    justificationRequired: boolean;
-}
-
-// Justificativa enviada
-interface BlockingJustification {
-    timestamp: number;
-    reason: string;
-    domain: string;
-    justified: boolean;
-}
-```
-
-## 🎨 Design e UX
-
--   **Cor Primária**: Azul (#3b82f6)
--   **Cor de Perigo**: Vermelho (#ef4444)
--   **Layout Responsivo**: Adaptado para popup (w-96) e páginas
--   **Animações**: Transições suaves e bounce effects
--   **Acessibilidade**: Inputs com labels e ARIA attributes
-
-## 🔧 Configurações
-
-### Vite
-
-Otimizado para extensões Chrome com:
-
--   Entry points separados (popup, background, block-page)
--   Rollup configurado para não chunkar
--   Alias `@/` para imports simplificados
-
-### TypeScript
-
--   Strict mode ativado
--   No unused locals/parameters
--   Tipos Chrome inclusos
-
-### Tailwind
-
--   Content scanning do `src/**/*.{js,jsx,ts,tsx,html}`
--   Temas customizados (primary, danger, animações)
-
-## 📝 Comandos Disponíveis
-
-```bash
-# Desenvolvimento com hot reload
-npm run dev
 
 # Build para produção
 npm run build
 
-# Preview da build
-npm run preview
-
-# Type check
-npm run type-check
+# Ou modo desenvolvimento
+npm run dev
 ```
 
-## 🐛 Troubleshooting
+### Carregar no Chrome
 
-### Extensão não carrega
+1. Abra `chrome://extensions/`
+2. Ative **Modo do desenvolvedor** (canto superior)
+3. Clique **Carregar extensão sem empacotamento**
+4. Selecione pasta `dist/`
 
-1. Verifique se `npm run build` foi executado
-2. Confirme que a pasta `dist/` existe
-3. Recarregue a extensão em `chrome://extensions/`
+## � Como Usar
 
-### Domínios não são bloqueados
+### Adicionar Sites Bloqueados
+1. Clique no ícone da extensão
+2. Digite o domínio (ex: `youtube.com`)
+3. Clique "Adicionar"
 
-1. Verifique o console (F12) para erros
-2. Confirme que o domínio está na lista (popup)
-3. Recarregue as abas abertas
+### Acessar Site Bloqueado
+1. Tente acessar o site
+2. Veja a página de bloqueio com 4 etapas:
+   - ⚠️ **Aviso** - Confirme que quer prosseguir
+   - 📝 **Justificativa** - Digite motivo (10-500 caracteres)
+   - ✅ **Confirmação** - Revise os dados
+   - 🎉 **Sucesso** - Redirecionamento automático
 
-### Build falha
+### Sistema de Passes
+- Cada justificativa = **3 acessos permitidos**
+- Após fechar a guia, passes são consumidos
+- Novo acesso = novo bloqueio
+
+## 🏗️ Arquitetura
+
+```
+Service Worker
+    ↓
+   State (Map de domínios + justificações)
+    ↓
+Content Script ← Chrome Messages ← Popup/Block Page
+```
+
+### Componentes Principais
+
+**Service Worker** (`background.ts`)
+- Gerencia estado global
+- Persiste em `chrome.storage.local`
+- Processa mensagens (ADD, REMOVE, CHECK_BLOCKED, etc)
+- Gerencia passes e justificativas
+
+**Content Script** (`content-script.ts`)
+- Verifica cada página carregada
+- Redireciona se bloqueado
+- Consome passes automaticamente
+
+**Popup Dashboard** (`popup/`)
+- React com Zustand
+- Add/remove domínios
+- Gerencia timer
+- Feedback visual
+
+**Block Page** (`block-page/`)
+- 4 componentes para fluxo
+- Integração com Service Worker
+- Salva justificativas
+
+## 📁 Estrutura
+
+```
+src/
+├── types/index.ts           # TypeScript interfaces
+├── background/background.ts # Service Worker
+├── content-script/          # Interceptação
+├── popup/                   # Dashboard React
+│   ├── store.ts
+│   └── components/
+├── block-page/              # Página de bloqueio
+│   ├── store.ts
+│   └── components/
+└── manifest.json
+```
+
+## 🔒 Segurança
+
+- Validação de domínios com regex
+- Min 10 / Max 500 caracteres em justificativas
+- Tratamento de erros em todas operações
+- Sem armazenamento de senhas/dados sensíveis
+- Storage local apenas (não sincroniza)
+
+## 🛠️ Desenvolvimento
+
+### Comandos
 
 ```bash
-# Limpe dependências
-rm -rf node_modules
-npm install
-
-# Rode novamente
-npm run build
+npm run dev         # Desenvolvimento com hot reload
+npm run build       # Build produção
+npm run type-check  # Validar TypeScript
+npm run preview     # Preview da build
 ```
 
-## 📄 Licença
+### Stack
 
-MIT License - Sinta-se livre para usar em projetos pessoais ou comerciais.
+- **React 18.2** - UI
+- **TypeScript 5.2** - Tipagem
+- **Zustand 4.4** - State
+- **Vite 5.0** - Build
+- **Tailwind 3.3** - CSS
+- **Manifest V3** - Chrome API
 
-## 👨‍💻 Desenvolvimento
+## ⚠️ Problemas Conhecidos
 
-Desenvolvido como exemplo de arquitetura moderna para extensões Chrome com React e TypeScript.
+Veja [ANALISE_TECNICA.md](ANALISE_TECNICA.md) para:
+- 3 problemas críticos identificados
+- 5 de alta prioridade
+- Recomendações de correção
 
-**Stack:**
-
--   React 18
--   TypeScript 5
--   Vite 5
--   Tailwind CSS 3
--   Zustand (State Management)
--   Manifest V3
-
----
-
-**Versão:** 1.0.0  
-**Última Atualização:** Dezembro 2025
+**Status:** Não recomendado para Chrome Web Store até correções
